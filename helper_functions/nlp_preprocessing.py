@@ -3,6 +3,7 @@ import re
 import nltk
 import numpy as np
 import string
+import unicodedata
 
 from collections import OrderedDict
 from nltk import FreqDist, word_tokenize, sent_tokenize
@@ -56,6 +57,16 @@ def strip_numeric(s):
     return RE_NUMERIC.sub("", s)
 
 
+def deaccent(s):
+    """
+    Remove letter accents from the given string. 
+    source: https://github.com/RaRe-Technologies/gensim/blob/ec222e8e3e72608a59805040eadcf5c734a2b96c/gensim/utils.py#L177
+    """
+    norm = unicodedata.normalize("NFD", s)
+    result = ('').join(ch for ch in norm if unicodedata.category(ch) != 'Mn')
+    return unicodedata.normalize("NFC", result)
+
+
 def clean_string_fields(x):
     
     extra_removals = {
@@ -76,6 +87,7 @@ def clean_string_fields(x):
     x = strip_multiple_whitespaces(x) 
     x = strip_tags(x)
     x = strip_punctuation(x)
+    x = deaccent(x)
     x = strip_short(x)
     x = strip_numeric(x)
     x = word_tokenize(x)
