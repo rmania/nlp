@@ -32,7 +32,7 @@ def strip_short(s, minsize=3):
 
 def strip_punctuation(s):
     """
-    Replace punctuation characters with spaces in `s` using RE_PUNCT`.
+    Replace punctuation characters with spaces in `s` using RE_PUNCT.
     """
     RE_PUNCT = re.compile(r'([%s])+' % re.escape(string.punctuation), re.UNICODE)
     
@@ -41,7 +41,7 @@ def strip_punctuation(s):
 
 def strip_tags(s):
     """
-    Remove tags from `s` using RE_TAGS`.
+    Remove tags from `s` using RE_TAGS.
     """
     RE_TAGS = re.compile(r"<([^>]+)>", re.UNICODE)
     
@@ -50,11 +50,20 @@ def strip_tags(s):
 
 def strip_numeric(s):
     """
-    Remove digits from `s` using :const:`~gensim.parsing.preprocessing.RE_NUMERIC`.
+    Remove digits from `s` using RE_NUMERIC.
     """
     RE_NUMERIC = re.compile(r"[0-9]+", re.UNICODE)
     
     return RE_NUMERIC.sub("", s)
+
+
+def strip_emails(s):
+    """
+    Remove digits from `s` using RE_EMAILS`.
+    """
+    RE_EMAILS = re.compile(r"\S*@\S*\s?", re.UNICODE)
+    
+    return RE_EMAILS.sub("", s)
 
 
 def deaccent(s):
@@ -71,7 +80,7 @@ def clean_string_fields(x):
     
     extra_removals = {
     "xxxxxxx", "xxxxx", "xxxxx",
-    "•", "∼", "", "β", "abstract", "title"
+    "•", "∼", "", "β", "abstract", "title", "subject"
     }
     
     
@@ -86,10 +95,11 @@ def clean_string_fields(x):
     )
     x = strip_multiple_whitespaces(x) 
     x = strip_tags(x)
+    x = strip_emails(x)
     x = strip_punctuation(x)
     x = deaccent(x)
-    x = strip_short(x)
     x = strip_numeric(x)
+    x = strip_short(x)
     x = word_tokenize(x)
     x = " ".join(word for word in x if word not in stopwords_en|extra_removals)
     x = stemmer.stem(x)
